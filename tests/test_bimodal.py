@@ -101,10 +101,10 @@ def test_bimanual_weight_duplication():
     # -----------------------------------------------
     
     # Eliminamos los búferes de normalización del state_dict
-    keys_to_remove = [k for k in hybrid_state_dict if "normalize" in k]
-    for key in keys_to_remove:
-        del hybrid_state_dict[key]
-    print("   => state_dict con pesos duplicados creado y búferes de normalización eliminados.")
+    #keys_to_remove = [k for k in hybrid_state_dict if "normalize" in k]
+    #for key in keys_to_remove:
+    #    del hybrid_state_dict[key]
+    #print("   => state_dict con pesos duplicados creado y búferes de normalización eliminados.")
 
     print("\n4. Cargando los pesos duplicados en el modelo...")
     policy.load_state_dict(hybrid_state_dict, strict=False)
@@ -134,6 +134,9 @@ def test_bimanual_weight_duplication():
     with torch.no_grad():
         loss, _ = policy.forward(fake_batch)
     print(f"   => ¡ÉXITO! Forward pass completado. Loss: {loss.item():.4f}")
+
+    for key in hybrid_state_dict.keys():
+        print(key)
 
 if __name__ == "__main__":
     test_bimanual_weight_duplication()
