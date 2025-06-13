@@ -1,7 +1,7 @@
 python -m lerobot.record_bimanual \
     --robot.type=so100_follower \
     --robot.port=/dev/ttyACM1 \
-    --robot.cameras="{laptop: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}}" \
+    --robot.cameras="{laptop: {type: opencv, index_or_path: 2, width: 640, height: 480, fps: 30}}" \
     --robot.id=my_awesome_follower_arm \
     --teleop.type=so100_leader \
     --teleop.port=/dev/ttyACM0 \
