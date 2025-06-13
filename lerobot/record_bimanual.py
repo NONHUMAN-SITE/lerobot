@@ -71,7 +71,17 @@ from pprint import pformat
 
 import numpy as np
 import rerun as rr
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich.text import Text
+from rich.align import Align
 
+from lerobot.common.cameras import (  # noqa: F401
+    CameraConfig,  # noqa: F401
+)
+from lerobot.common.cameras.opencv.configuration_opencv import OpenCVCameraConfig  # noqa: F401
+from lerobot.common.cameras.realsense.configuration_realsense import RealSenseCameraConfig  # noqa: F401
 from lerobot.common.datasets.image_writer import safe_stop_image_writer
 from lerobot.common.datasets.lerobot_dataset import LeRobotDataset
 from lerobot.common.datasets.utils import build_dataset_frame, hw_to_dataset_features
@@ -126,8 +136,8 @@ class DatasetRecordConfig:
     episode_time_s: int | float = 60
     # Number of seconds for resetting the environment after each episode.
     reset_time_s: int | float = 60
-    # Number of episodes to record.
-    num_episodes: int = 50
+    # Number of episodes to record (0 = unlimited).
+    num_episodes: int = 0
     # Encode frames in the dataset into video
     video: bool = True
     # Upload dataset to Hugging Face hub.
@@ -314,6 +324,96 @@ def init_continuous_keyboard_listener():
     return listener, events
 
 
+def show_episode_menu(episode_count: int, task_name: str, repo_id: str):
+    """
+    Display a beautiful menu using rich after each episode
+    """
+    console = Console()
+    
+    # Clear screen
+    console.clear()
+    
+    # Title
+    title = Text("🤖 NONHUMAN BIMANUAL RECORDING 🤖", style="bold magenta")
+    
+    # Stats table
+    stats_table = Table(show_header=True, header_style="bold cyan")
+    stats_table.add_column("📊 STATISTIC", style="cyan", width=20)
+    stats_table.add_column("📈 VALUE", style="yellow", width=30)
+    
+    stats_table.add_row("Episodes Recorded", f"[bold green]{episode_count}[/bold green]")
+    stats_table.add_row("Task", f"[bold blue]{task_name}[/bold blue]")
+    stats_table.add_row("Dataset", f"[bold white]{repo_id}[/bold white]")
+    
+    # Controls table
+    controls_table = Table(show_header=True, header_style="bold green")
+    controls_table.add_column("🎮 CONTROL", style="green", width=15)
+    controls_table.add_column("📋 ACTION", style="white", width=35)
+    
+    controls_table.add_row("→ Right Arrow", "🎬 Start next episode")
+    controls_table.add_row("← Left Arrow", "🔄 Re-record last episode") 
+    controls_table.add_row("↓ Down Arrow", "▶️ Continue current episode")
+    controls_table.add_row("ESC", "🛑 Stop recording & exit")
+    
+    # Status message
+    status = Text("✅ Episode saved successfully! Choose your next action:", style="bold green")
+    
+    # Create panels
+    title_panel = Panel(Align.center(title), style="bold magenta")
+    stats_panel = Panel(stats_table, title="📊 Recording Statistics", style="cyan")
+    controls_panel = Panel(controls_table, title="🎮 Available Controls", style="green")
+    status_panel = Panel(Align.center(status), style="green")
+    
+    # Display everything
+    console.print(title_panel)
+    console.print("")
+    console.print(stats_panel)
+    console.print("")
+    console.print(controls_panel)
+    console.print("")
+    console.print(status_panel)
+    console.print("")
+    console.print("[bold yellow]⏳ Waiting for your input...[/bold yellow]")
+
+
+def show_final_summary(episode_count: int, task_name: str, repo_id: str):
+    """
+    Display a beautiful final summary when recording ends
+    """
+    console = Console()
+    console.clear()
+    
+    # Final title
+    title = Text("🏁 RECORDING SESSION COMPLETED 🏁", style="bold green")
+    
+    # Final stats table
+    final_table = Table(show_header=True, header_style="bold green")
+    final_table.add_column("📊 FINAL STATISTICS", style="green", width=25)
+    final_table.add_column("📈 RESULT", style="yellow", width=30)
+    
+    final_table.add_row("Total Episodes Recorded", f"[bold green]{episode_count}[/bold green]")
+    final_table.add_row("Task Completed", f"[bold blue]{task_name}[/bold blue]")
+    final_table.add_row("Dataset Saved To", f"[bold white]{repo_id}[/bold white]")
+    final_table.add_row("Status", "[bold green]✅ SUCCESS[/bold green]")
+    
+    # Create panels
+    title_panel = Panel(Align.center(title), style="bold green")
+    stats_panel = Panel(final_table, title="📊 Session Summary", style="green")
+    
+    # Thank you message
+    thank_you = Text("🙏 Thank you for using LeRobot! Your data has been saved successfully.", style="bold cyan")
+    thank_you_panel = Panel(Align.center(thank_you), style="cyan")
+    
+    # Display everything
+    console.print(title_panel)
+    console.print("")
+    console.print(stats_panel)
+    console.print("")
+    console.print(thank_you_panel)
+    console.print("")
+    console.print("[bold yellow]🚀 Exiting LeRobot Bimanual Recording...[/bold yellow]")
+
+
 @parser.wrap()
 def record(cfg: RecordConfig) -> LeRobotDataset:
     init_logging()
@@ -365,25 +465,34 @@ def record(cfg: RecordConfig) -> LeRobotDataset:
     if teleop is not None:
         teleop.connect()
 
-    # Use appropriate keyboard listener based on recording mode
-    if cfg.dataset.continuous_recording:
-        listener, events = init_continuous_keyboard_listener()
-        print("\n🎬 CONTINUOUS RECORDING MODE")
-        print("Controls:")
-        print("  → Right Arrow: Finish current episode and start next")
-        print("  ← Left Arrow: Cancel and re-record current episode")
-        print("  ↓ Down Arrow: Continue recording current episode")
-        print("  ESC: Stop recording session")
-        print()
-    else:
-        listener, events = init_keyboard_listener()
+    # Use continuous recording mode for indefinite episodes
+    listener, events = init_continuous_keyboard_listener()
+    
+    # Show initial welcome screen
+    console = Console()
+    console.clear()
+    welcome_title = Text("🚀 STARTING XHUMAN BIMANUAL RECORDING", style="bold green")
+    welcome_panel = Panel(Align.center(welcome_title), style="bold green")
+    console.print(welcome_panel)
+    console.print(f"\n[bold cyan]📋 Task:[/bold cyan] [yellow]{cfg.dataset.single_task}[/yellow]")
+    console.print(f"[bold cyan]💾 Dataset:[/bold cyan] [yellow]{cfg.dataset.repo_id}[/yellow]")
+    console.print(f"[bold cyan]📹 FPS:[/bold cyan] [yellow]{cfg.dataset.fps}[/yellow]")
+    console.print("\n[bold magenta]🎮 Controls:[/bold magenta]")
+    console.print("  [green]→[/green] Right Arrow: Finish episode and start next")
+    console.print("  [green]←[/green] Left Arrow: Cancel and re-record episode") 
+    console.print("  [green]↓[/green] Down Arrow: Continue current episode")
+    console.print("  [red]ESC[/red]: Stop recording session")
+    console.print("\n[bold yellow]🎬 Ready to start recording! Press any arrow key...[/bold yellow]")
 
     recorded_episodes = 0
-    while recorded_episodes < cfg.dataset.num_episodes:
-        log_say(f"Recording episode {dataset.num_episodes + 1}", cfg.play_sounds)
+    # Unlimited episodes if num_episodes is 0, otherwise use the configured limit
+    unlimited_mode = cfg.dataset.num_episodes == 0
+    
+    while unlimited_mode or recorded_episodes < cfg.dataset.num_episodes:
+        log_say(f"Recording episode {recorded_episodes + 1}", cfg.play_sounds)
         
-        # For continuous mode, use a very large time limit; for timed mode, use configured time
-        episode_time = float('inf') if cfg.dataset.continuous_recording else cfg.dataset.episode_time_s
+        # Always use infinite time in indefinite mode
+        episode_time = float('inf')
         
         record_loop(
             robot=robot,
@@ -411,30 +520,21 @@ def record(cfg: RecordConfig) -> LeRobotDataset:
             dataset.save_episode()
             recorded_episodes += 1
             
-            if cfg.dataset.continuous_recording:
-                log_say(f"Episode {recorded_episodes} saved. Press → to start next episode or ESC to stop.", cfg.play_sounds)
-                # Reset finish episode flag for next episode
-                events["finish_episode"] = False
-                events["exit_early"] = False
-
-        # Execute reset period between episodes (except for the last episode)
-        if not events["stop_recording"] and recorded_episodes < cfg.dataset.num_episodes:
-            if not cfg.dataset.continuous_recording:
-                # Only do automatic reset in timed mode
-                log_say("Reset the environment", cfg.play_sounds)
-                record_loop(
-                    robot=robot,
-                    events=events,
-                    fps=cfg.dataset.fps,
-                    teleop=teleop,
-                    control_time_s=cfg.dataset.reset_time_s,
-                    single_task=cfg.dataset.single_task,
-                    display_data=cfg.display_data,
-                )
+            # Show beautiful menu after each episode
+            show_episode_menu(recorded_episodes, cfg.dataset.single_task, cfg.dataset.repo_id)
+            
+            # Reset episode control flags for next episode
+            events["finish_episode"] = False
+            events["exit_early"] = False
+            
+            # Wait for user input before proceeding (they need to press arrow keys)
+            log_say(f"Episode {recorded_episodes} saved successfully!", cfg.play_sounds)
 
         if events["stop_recording"]:
             break
 
+    # Show final summary
+    show_final_summary(recorded_episodes, cfg.dataset.single_task, cfg.dataset.repo_id)
     log_say("Stop recording", cfg.play_sounds, blocking=True)
 
     robot.disconnect()

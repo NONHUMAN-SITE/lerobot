@@ -82,6 +82,7 @@ from lerobot.configs import parser
 from lerobot.configs.policies import PreTrainedConfig
 
 from .common.teleoperators import koch_leader, so100_leader, so101_leader  # noqa: F401
+from lerobot.xhuman.logger import logger
 
 
 @dataclass
@@ -239,6 +240,8 @@ def record(cfg: RecordConfig) -> LeRobotDataset:
     obs_features = hw_to_dataset_features(robot.observation_features, "observation", cfg.dataset.video)
     dataset_features = {**action_features, **obs_features}
 
+    logger.info(f"dataset_features: {dataset_features}")
+
     if cfg.resume:
         dataset = LeRobotDataset(
             cfg.dataset.repo_id,
@@ -265,14 +268,20 @@ def record(cfg: RecordConfig) -> LeRobotDataset:
             image_writer_threads=cfg.dataset.num_image_writer_threads_per_camera * len(robot.cameras),
         )
 
+    logger.info(f"Dataset created: {dataset}")
+
     # Load pretrained policy
     policy = None if cfg.policy is None else make_policy(cfg.policy, ds_meta=dataset.meta)
 
     robot.connect()
     if teleop is not None:
         teleop.connect()
+    logger.info(f"Robot connected: {robot}")
+    logger.info(f"Teleop connected: {teleop}")
 
     listener, events = init_keyboard_listener()
+    logger.info(f"Listener initialized: {listener}")
+    logger.info(f"Events initialized: {events}")
 
     for recorded_episodes in range(cfg.dataset.num_episodes):
         log_say(f"Recording episode {dataset.num_episodes}", cfg.play_sounds)
