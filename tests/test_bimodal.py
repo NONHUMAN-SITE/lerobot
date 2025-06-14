@@ -60,10 +60,10 @@ def test_bimanual_weight_duplication():
     print("\n1. Creando la arquitectura bimanual (12 DOF)...")
     policy = SmolVLAPolicy(config=target_config, dataset_stats=dataset_stats)
     
-    print(f"\n2. Obteniendo los pesos preentrenados (6 DOF) de '{pretrained_model_name}'...")
-    checkpoint_path = hf_hub_download(repo_id=pretrained_model_name, filename="model.safetensors")
-    pretrained_state_dict = safetensors.torch.load_file(checkpoint_path)
-    pretrained_state_dict = rename_checkpoint_keys(pretrained_state_dict, "model._orig_mod.//model.")
+    # print(f"\n2. Obteniendo los pesos preentrenados (6 DOF) de '{pretrained_model_name}'...")
+    # checkpoint_path = hf_hub_download(repo_id=pretrained_model_name, filename="model.safetensors")
+    # pretrained_state_dict = safetensors.torch.load_file(checkpoint_path)
+    # pretrained_state_dict = rename_checkpoint_keys(pretrained_state_dict, "model._orig_mod.//model.")
     
     
     print("\n4. Cargando los pesos duplicados en el modelo...")
