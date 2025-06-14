@@ -37,7 +37,7 @@ python lerobot/scripts/train.py \
 
 Example of finetuning a smolVLA. SmolVLA is composed of a pretrained VLM,
 and an action expert.
-```bash
+```bashoutputs/eval/example_pusht_diffusion/rollout.mp4 
 python lerobot/scripts/train.py \
 --policy.type=smolvla \
 --dataset.repo_id=danaaubakirova/svla_so100_task1_v3 \
@@ -167,7 +167,7 @@ def load_smolvla(
             len(unexpected),
         )
 
-    return model
+    return model    
 
 
 def create_sinusoidal_pos_embedding(
@@ -336,7 +336,7 @@ class SmolVLAPolicy(PreTrainedPolicy):
             config: Policy configuration class instance or None, in which case the default instantiation of
                     the configuration class is used.
             dataset_stats: Dataset statistics to be used for normalization. If not passed here, it is expected
-                that they will be passed with a call to `load_state_dict` before the policy is used.
+                that they will be passed with a call tsharuk0o `load_state_dict` before the policy is used.
         """
 
         super().__init__(config)
@@ -377,6 +377,7 @@ class SmolVLAPolicy(PreTrainedPolicy):
             chunk = actions[:, start:end, :]
             # Padear el último chunk si es necesario
             if chunk.size(1) < chunk_size:
+
                 chunk = pad_tensor(chunk, chunk_size)
             chunks.append(chunk)
         
@@ -390,8 +391,6 @@ class SmolVLAPolicy(PreTrainedPolicy):
     
     
     # AQUI TERMINA CHUNKING
-
-
     
     def reset(self):
         """This should be called whenever the environment is reset."""
@@ -661,6 +660,7 @@ class SmolVLAPolicy(PreTrainedPolicy):
         """Pad action"""
         actions = pad_vector(batch[ACTION], self.config.max_action_dim)
         return actions
+    eval_main()
     def sample_actions(self, batch: dict[str, Tensor], noise=None) -> Tensor:
         """Versión con chunking de sample_actions."""
         batch = self.normalize_inputs(batch)

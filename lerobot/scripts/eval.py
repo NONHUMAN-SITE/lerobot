@@ -504,3 +504,6 @@ def eval_main(cfg: EvalPipelineConfig):
 if __name__ == "__main__":
     init_logging()
     eval_main()
+
+
+

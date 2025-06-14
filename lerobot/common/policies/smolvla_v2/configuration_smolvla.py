@@ -29,6 +29,10 @@ class SmolVLAConfig(PreTrainedConfig):
     n_obs_steps: int = 1
     chunk_size: int = 50
     n_action_steps: int = 50
+    # Configuración de chunking
+    action_chunk_size: int = 8
+    chunk_overlap: int = 2
+    max_sequence_length: int = 200  # Longitud máxima total de la secuencia
 
     normalization_mapping: dict[str, NormalizationMode] = field(
         default_factory=lambda: {
@@ -101,19 +105,33 @@ class SmolVLAConfig(PreTrainedConfig):
     min_period: float = 4e-3  # sensitivity range for the timestep used in sine-cosine positional encoding
     max_period: float = 4.0
 
+    # Configuración de memoria
+    gradient_checkpointing: bool = True 
+    use_flash_attention: bool = True  
+
+
+    # Configuración avanzada de atención
+    prefix_attention_horizon: int = 4  # Cuántos pasos mirar hacia atrás
+    prefix_attention_schedule: str = "exp"  # ["linear", "exp", "ones", "zeros"]
+    max_guidance_weight: float = 10.0  # Peso máximo para guía entre chunks
+
+    # Configuración de inferencia
+    inference_delay: int = 1  # Retardo en pasos para inferencia en tiempo real
+    realtime_inference: bool = False  # Modo especial para baja latencia
+
     def __post_init__(self):
         super().__post_init__()
-
-        """Input validation (not exhaustive)."""
-        if self.n_action_steps > self.chunk_size:
-            raise ValueError(
-                f"The chunk size is the upper bound for the number of action steps per model invocation. Got "
-                f"{self.n_action_steps} for `n_action_steps` and {self.chunk_size} for `chunk_size`."
-            )
-        if self.use_delta_joint_actions_aloha:
-            raise NotImplementedError(
-                "`use_delta_joint_actions_aloha` is used by smolvla for aloha real models. It is not ported yet in LeRobot."
-            )
+    
+        # Validación de chunking
+        if self.chunk_size % self.action_chunk_size != 0:
+            raise ValueError("chunk_size debe ser múltiplo de action_chunk_size")
+            
+        if self.chunk_overlap >= self.action_chunk_size:
+            raise ValueError("chunk_overlap debe ser menor que action_chunk_size")
+        
+        # Validación de atención
+        if self.prefix_attention_schedule not in ["linear", "exp", "ones", "zeros"]:
+            raise ValueError("Esquema de atención no válido")
 
     def validate_features(self) -> None:
         for i in range(self.empty_cameras):
@@ -140,7 +158,21 @@ class SmolVLAConfig(PreTrainedConfig):
             num_warmup_steps=self.scheduler_warmup_steps,
             num_decay_steps=self.scheduler_decay_steps,
         )
+    def get_chunking_params(self) -> dict:
+    #Devuelve parámetros de chunking para facilitar el acceso
+        return {
+            "chunk_size": self.action_chunk_size,
+            "overlap": self.chunk_overlap,
+            "max_seq_len": self.max_sequence_length
+        }
 
+    def get_attention_params(self) -> dict:
+        """Devuelve parámetros de atención para prefijos"""
+        return {
+            "horizon": self.prefix_attention_horizon,
+            "schedule": self.prefix_attention_schedule,
+            "max_weight": self.max_guidance_weight
+        }
     @property
     def observation_delta_indices(self) -> list:
         return [0]
@@ -152,3 +184,4 @@ class SmolVLAConfig(PreTrainedConfig):
     @property
     def reward_delta_indices(self) -> None:
         return None
+
