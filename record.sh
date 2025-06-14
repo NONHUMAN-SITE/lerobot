@@ -1,11 +1,11 @@
-python -m lerobot.record \
-    --robot.type=so100_follower \
-    --robot.port=/dev/ttyACM1 \
-    --robot.cameras="{laptop: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}}" \
-    --robot.id=my_awesome_follower_arm \
-    --teleop.type=so100_leader \
-    --teleop.port=/dev/ttyACM0 \
-    --teleop.id=my_awesome_leader_arm \
-    --dataset.repo_id=NONHUMAN-RESEARCH/test-bimanual \
-    --dataset.num_episodes=2 \
-    --dataset.single_task="Pick and place objects"
+#python -m lerobot.record \
+#    --robot.type=so100_follower \
+#    --robot.port=/dev/ttyACM1 \
+#    --robot.cameras="{laptop: {type: opencv, index_or_path: 0, width: 640, height: 480, fps: 30}}" \
+#    --robot.id=my_awesome_follower_arm \
+#    --teleop.type=so100_leader \
+#    --teleop.port=/dev/ttyACM0 \
+#    --teleop.id=my_awesome_leader_arm \
+#    --dataset.repo_id=NONHUMAN-RESEARCH/test-bimanual \
+#    --dataset.num_episodes=2 \
+#    --dataset.single_task="Pick and place objects"
