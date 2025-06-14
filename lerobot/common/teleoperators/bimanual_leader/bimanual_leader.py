@@ -25,7 +25,7 @@ from lerobot.common.motors.feetech import (
 )
 
 from ..teleoperator import Teleoperator
-from .config_bimanual_leader import BimanualLeaderConfig, SO100LeaderConfig
+from .config_bimanual_leader import BimanualLeaderConfig
 
 logger = logging.getLogger(__name__)
 
@@ -302,7 +302,7 @@ class BimanualLeader(Teleoperator):
         
         logger.info(f"{self} disconnected.")
 
-
+'''
 # Keep the original SO100Leader class for backward compatibility
 class SO100Leader(Teleoperator):
     """
@@ -418,3 +418,4 @@ class SO100Leader(Teleoperator):
 
         self.bus.disconnect()
         logger.info(f"{self} disconnected.")
+'''

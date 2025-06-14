@@ -63,7 +63,7 @@ class BimanualFollowerConfig(RobotConfig):
         if isinstance(self.max_relative_target, list) and len(self.max_relative_target) != 12:
             raise ValueError("max_relative_target list must have exactly 12 values (one per motor)")
 
-
+'''
 # Keep the old config for backward compatibility
 @RobotConfig.register_subclass("so100_follower")
 @dataclass
@@ -90,3 +90,4 @@ class SO100FollowerConfig(RobotConfig):
 
     # Set to `True` for backward compatibility with previous policies/dataset
     use_degrees: bool = False
+'''

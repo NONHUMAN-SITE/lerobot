@@ -48,6 +48,7 @@ from lerobot.common.robots import (  # noqa: F401
     make_robot_from_config,
     so100_follower,
     so101_follower,
+    bimanual_follower,
 )
 from lerobot.common.teleoperators import (
     Teleoperator,
@@ -58,7 +59,7 @@ from lerobot.common.utils.robot_utils import busy_wait
 from lerobot.common.utils.utils import init_logging, move_cursor_up
 from lerobot.common.utils.visualization_utils import _init_rerun
 
-from .common.teleoperators import koch_leader, so100_leader, so101_leader  # noqa: F401
+from .common.teleoperators import koch_leader, so100_leader, so101_leader, bimanual_leader  # noqa: F401
 
 
 @dataclass
@@ -70,6 +71,8 @@ class TeleoperateConfig:
     teleop_time_s: float | None = None
     # Display all cameras on screen
     display_data: bool = False
+    # Whether to auto-calibrate devices on connection
+    auto_calibrate: bool = False
 
 
 def teleop_loop(
@@ -119,8 +122,8 @@ def teleoperate(cfg: TeleoperateConfig):
     teleop = make_teleoperator_from_config(cfg.teleop)
     robot = make_robot_from_config(cfg.robot)
 
-    teleop.connect()
-    robot.connect()
+    teleop.connect(calibrate=cfg.auto_calibrate)
+    robot.connect(calibrate=cfg.auto_calibrate)
 
     try:
         teleop_loop(teleop, robot, cfg.fps, display_data=cfg.display_data, duration=cfg.teleop_time_s)

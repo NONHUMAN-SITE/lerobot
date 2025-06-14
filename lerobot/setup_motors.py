@@ -35,6 +35,7 @@ from .common.robots import (  # noqa: F401
     make_robot_from_config,
     so100_follower,
     so101_follower,
+    bimanual_follower,
 )
 from .common.teleoperators import (  # noqa: F401
     TeleoperatorConfig,
@@ -42,6 +43,7 @@ from .common.teleoperators import (  # noqa: F401
     make_teleoperator_from_config,
     so100_leader,
     so101_leader,
+    bimanual_leader,
 )
 
 COMPATIBLE_DEVICES = [
@@ -52,7 +54,7 @@ COMPATIBLE_DEVICES = [
     "so101_follower",
     "so101_leader",
     "bimanual_leader",
-    "bimanual_follower"
+    "bimanual_follower",
     "lekiwi",
 ]
 
@@ -71,6 +73,8 @@ class SetupConfig:
 
 @draccus.wrap()
 def setup_motors(cfg: SetupConfig):
+    print(f"cfg.device.type: {cfg.device.type}")
+    print(f"COMPATIBLE_DEVICES: {COMPATIBLE_DEVICES}")
     if cfg.device.type not in COMPATIBLE_DEVICES:
         raise NotImplementedError
 

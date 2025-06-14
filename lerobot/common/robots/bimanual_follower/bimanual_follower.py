@@ -29,7 +29,7 @@ from lerobot.common.motors.feetech import (
 
 from ..robot import Robot
 from ..utils import ensure_safe_goal_position
-from .config_bimanual_follower import BimanualFollowerConfig, SO100FollowerConfig
+from .config_bimanual_follower import BimanualFollowerConfig
 
 logger = logging.getLogger(__name__)
 
@@ -388,7 +388,7 @@ class BimanualFollower(Robot):
 
         logger.info(f"{self} disconnected.")
 
-
+'''
 # Keep the original SO100Follower class for backward compatibility
 class SO100Follower(Robot):
     """
@@ -568,3 +568,4 @@ class SO100Follower(Robot):
             cam.disconnect()
 
         logger.info(f"{self} disconnected.")
+'''

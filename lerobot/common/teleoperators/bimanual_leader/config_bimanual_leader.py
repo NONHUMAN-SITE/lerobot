@@ -44,6 +44,7 @@ class BimanualLeaderConfig(TeleoperatorConfig):
             raise ValueError("Left and right leader arms must use different ports")
 
 
+'''
 # Keep the old config for backward compatibility
 @TeleoperatorConfig.register_subclass("so100_leader")
 @dataclass
@@ -57,3 +58,4 @@ class SO100LeaderConfig(TeleoperatorConfig):
     
     # Port to connect to the arm
     port: str
+'''

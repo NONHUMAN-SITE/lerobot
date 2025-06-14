@@ -1,2 +1,2 @@
-from .config_bimanual_follower import BimanualFollowerConfig, SO100FollowerConfig
-from .bimanual_follower import BimanualFollower, SO100Follower
+from .config_bimanual_follower import BimanualFollowerConfig
+from .bimanual_follower import BimanualFollower
