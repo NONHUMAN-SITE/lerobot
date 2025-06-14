@@ -52,6 +52,7 @@ from lerobot.configs import parser
 from lerobot.configs.train import TrainPipelineConfig
 from lerobot.scripts.eval import eval_policy
 
+from lerobot.xhuman.utils import duplicate_weights
 
 def update_policy(
     train_metrics: MetricsTracker,
@@ -140,6 +141,11 @@ def train(cfg: TrainPipelineConfig):
         cfg=cfg.policy,
         ds_meta=dataset.meta,
     )
+    '''
+    Esta función será solo por la hackathon, no se debe hacer en producción. Además esto solo funcionará
+    para la clase de SmolVLA.
+    '''
+    policy = duplicate_weights(policy)
 
     logging.info("Creating optimizer and scheduler")
     optimizer, lr_scheduler = make_optimizer_and_scheduler(cfg, policy)

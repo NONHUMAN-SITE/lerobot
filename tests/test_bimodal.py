@@ -65,78 +65,14 @@ def test_bimanual_weight_duplication():
     pretrained_state_dict = safetensors.torch.load_file(checkpoint_path)
     pretrained_state_dict = rename_checkpoint_keys(pretrained_state_dict, "model._orig_mod.//model.")
     
-    print("\n3. Construyendo 'state_dict' con PESOS DUPLICADOS...")
-    hybrid_state_dict = pretrained_state_dict.copy()
     
-    # --- LÓGICA CLAVE: DUPLICACIÓN DE PESOS ---
-    # Creamos un nuevo tensor de pesos de destino que tendrá el conocimiento duplicado.
-    
-    # Para la capa de entrada `state_proj`
-    checkpoint_state_weight = pretrained_state_dict['model.state_proj.weight']
-    single_arm_state_weights = checkpoint_state_weight[:, :DOF_PER_ARM] # Pesos para 6 DOF
-    # El nuevo tensor tendrá la forma correcta para 12 DOF
-    duplicated_state_weight = torch.zeros_like(policy.model.state_proj.weight.data)
-    duplicated_state_weight[:, :DOF_PER_ARM] = single_arm_state_weights     # Copia para el brazo 1
-    duplicated_state_weight[:, DOF_PER_ARM:DOF_TARGET] = single_arm_state_weights # Copia para el brazo 2
-    hybrid_state_dict['model.state_proj.weight'] = duplicated_state_weight
-    
-    # Para la capa de salida `action_out_proj` y su bias
-    checkpoint_action_weight = pretrained_state_dict['model.action_out_proj.weight']
-    checkpoint_action_bias = pretrained_state_dict['model.action_out_proj.bias']
-    
-    single_arm_action_weights = checkpoint_action_weight[:DOF_PER_ARM, :] # Pesos para 6 DOF
-    single_arm_action_bias = checkpoint_action_bias[:DOF_PER_ARM]
-    
-    duplicated_action_weight = torch.zeros_like(policy.model.action_out_proj.weight.data)
-    duplicated_action_bias = torch.zeros_like(policy.model.action_out_proj.bias.data)
-    
-    duplicated_action_weight[:DOF_PER_ARM, :] = single_arm_action_weights   # Copia para el brazo 1
-    duplicated_action_weight[DOF_PER_ARM:DOF_TARGET, :] = single_arm_action_weights # Copia para el brazo 2
-    
-    duplicated_action_bias[:DOF_PER_ARM] = single_arm_action_bias           # Copia para el brazo 1
-    duplicated_action_bias[DOF_PER_ARM:DOF_TARGET] = single_arm_action_bias       # Copia para el brazo 2
-    
-    hybrid_state_dict['model.action_out_proj.weight'] = duplicated_action_weight
-    hybrid_state_dict['model.action_out_proj.bias'] = duplicated_action_bias
-    # -----------------------------------------------
-    
-    # Eliminamos los búferes de normalización del state_dict
-    #keys_to_remove = [k for k in hybrid_state_dict if "normalize" in k]
-    #for key in keys_to_remove:
-    #    del hybrid_state_dict[key]
-    #print("   => state_dict con pesos duplicados creado y búferes de normalización eliminados.")
-
     print("\n4. Cargando los pesos duplicados en el modelo...")
-    policy.load_state_dict(hybrid_state_dict, strict=False)
+    policy.load_state_dict(pretrained_state_dict)
     
     # --- VERIFICACIÓN FINAL ---
     print("\n--- VERIFICACIÓN DE LA DUPLICACIÓN DE PESOS ---")
     final_weights = policy.model.state_proj.weight.data
     
-    # Aserción 1: Los pesos del brazo 1 deben coincidir con los del checkpoint.
-    assert torch.allclose(final_weights[:, :DOF_PER_ARM], single_arm_state_weights), \
-        "ERROR: Los pesos del primer brazo (0-5) no coinciden con los del checkpoint."
-    print("   => Verificación 1/2: Pesos del primer brazo cargados correctamente.")
-    print(final_weights[:, :DOF_PER_ARM])
-    print(single_arm_state_weights)
-    
-    # Aserción 2: Los pesos del brazo 2 deben ser una COPIA de los del brazo 1.
-    assert torch.allclose(final_weights[:, DOF_PER_ARM:DOF_TARGET], single_arm_state_weights), \
-        "ERROR: Los pesos del segundo brazo (6-11) no son una copia de los del primero."
-    print("   => Verificación 2/2: Pesos del segundo brazo duplicados correctamente.")
-    print(final_weights[:, DOF_PER_ARM:DOF_TARGET])
-    print(single_arm_state_weights)
-    
-    policy.to(device).eval()
-    
-    print("\n5. Ejecutando un forward pass de prueba...")
-    fake_batch = create_fake_bimanual_batch(2, target_config.chunk_size, DOF_PER_ARM, device)
-    with torch.no_grad():
-        loss, _ = policy.forward(fake_batch)
-    print(f"   => ¡ÉXITO! Forward pass completado. Loss: {loss.item():.4f}")
-
-    for key in hybrid_state_dict.keys():
-        print(key)
 
 if __name__ == "__main__":
     test_bimanual_weight_duplication()

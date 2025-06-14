@@ -131,12 +131,12 @@ exclude_dirs = [
 ]
 skips = ["B101", "B311", "B404", "B603"]
 
-[tool.typos]
-default.extend-ignore-re = [
+[tool.typos.default]
+extend-ignore-re = [
     "(?Rm)^.*(#|//)\\s*spellchecker:disable-line$",                      # spellchecker:disable-line
     "(?s)(#|//)\\s*spellchecker:off.*?\\n\\s*(#|//)\\s*spellchecker:on", # spellchecker:<on|off>
 ]
-default.extend-ignore-identifiers-re = [
+extend-ignore-identifiers-re = [
     # Add individual words here to ignore them
     "2nd",
     "pn",

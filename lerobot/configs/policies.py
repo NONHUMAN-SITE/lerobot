@@ -125,6 +125,9 @@ class PreTrainedConfig(draccus.ChoiceRegistry, HubMixin, abc.ABC):
 
     @property
     def action_feature(self) -> PolicyFeature | None:
+        """
+        Returns the action feature of the policy.
+        """
         for _, ft in self.output_features.items():
             if ft.type is FeatureType.ACTION:
                 return ft
