@@ -18,7 +18,7 @@
 
 python -m lerobot.calibrate \
     --robot.type=so100_follower \
-    --robot.port=/dev/ttyACM1 \
+    --robot.port=/dev/ttyACM0 \
     --robot.id=right_follower_arm
 
 

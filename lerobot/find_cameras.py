@@ -162,6 +162,7 @@ def create_camera_instance(cam_meta: Dict[str, Any]) -> Dict[str, Any] | None:
     logger.info(f"Preparing {cam_type} ID {cam_id} with default profile")
 
     try:
+        print(f"Cam Id: {cam_id}")
         if cam_type == "OpenCV":
             cv_config = OpenCVCameraConfig(
                 index_or_path=cam_id,
@@ -253,6 +254,7 @@ def save_images_from_all_cameras(
     cameras_to_use = []
     for cam_meta in all_camera_metadata:
         camera_instance = create_camera_instance(cam_meta)
+        print(f"Camera instance: {camera_instance}")
         if camera_instance:
             cameras_to_use.append(camera_instance)
 

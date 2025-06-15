@@ -10,6 +10,6 @@
 #    --teleop.right_port=/dev/ttyACM1 \
 
 python -m lerobot.setup_motors \
-    --robot.type=so100_follower \
-    --robot.port=/dev/ttyACM2 \
-    --robot.id=jeje
+    --teleop.type=so100_leader \
+    --teleop.port=/dev/ttyACM0 \
+    --teleop.id=right_leader_arm

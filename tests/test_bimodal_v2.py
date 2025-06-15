@@ -65,10 +65,6 @@ def test_bimanual_weight_duplication():
     # pretrained_state_dict = safetensors.torch.load_file(checkpoint_path)
     # pretrained_state_dict = rename_checkpoint_keys(pretrained_state_dict, "model._orig_mod.//model.")
     
-    
-    print("\n4. Cargando los pesos duplicados en el modelo...")
-    policy.load_state_dict(pretrained_state_dict)
-    
     # --- VERIFICACIÓN FINAL ---
     print("\n--- VERIFICACIÓN DE LA DUPLICACIÓN DE PESOS ---")
     final_weights = policy.model.state_proj.weight.data

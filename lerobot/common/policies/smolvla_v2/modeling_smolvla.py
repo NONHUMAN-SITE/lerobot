@@ -660,7 +660,7 @@ class SmolVLAPolicy(PreTrainedPolicy):
         """Pad action"""
         actions = pad_vector(batch[ACTION], self.config.max_action_dim)
         return actions
-    eval_main()
+
     def sample_actions(self, batch: dict[str, Tensor], noise=None) -> Tensor:
         """Versión con chunking de sample_actions."""
         batch = self.normalize_inputs(batch)

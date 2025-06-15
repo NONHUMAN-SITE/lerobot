@@ -1,14 +1,14 @@
-DATASET_NAME=test-bimanual
+DATASET_NAME=LEROBOTHACKATON
 
 python -m lerobot.record_bimanual \
     --robot.type=bimanual_follower \
-    --robot.left_port=/dev/ttyACM0 \
-    --robot.right_port=/dev/ttyACM1 \
+    --robot.left_port=/dev/ttyACM3 \
+    --robot.right_port=/dev/ttyACM2 \
     --robot.id=my_awesome_follower_arm \
-    --robot.cameras="{laptop: {type: opencv, index_or_path: 2, width: 640, height: 480, fps: 30}}" \
+    --robot.cameras="{laptop: {type: opencv, index_or_path: 2, width: 640, height: 480, fps: 30},phone: {type: opencv, index_or_path: 4, width: 640, height: 480, fps: 30}}" \
     --teleop.type=bimanual_leader \
-    --teleop.left_port=/dev/ttyACM0 \
-    --teleop.right_port=/dev/ttyACM1 \
+    --teleop.left_port=/dev/ttyACM1 \
+    --teleop.right_port=/dev/ttyACM0 \
     --teleop.id=my_awesome_leader_arm \
     --dataset.repo_id=NONHUMAN-RESEARCH/$DATASET_NAME \
     --dataset.num_episodes=0 \
