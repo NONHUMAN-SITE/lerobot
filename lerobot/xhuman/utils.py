@@ -4,7 +4,7 @@ from lerobot.common.policies.factory import PreTrainedPolicy
 def duplicate_weights(policy: PreTrainedPolicy):
     
     with torch.no_grad():
-        # Copiar los pesos de las primeras 6 columnas del layer original
+        
         first_6_weights = policy.model.action_out_proj.weight[:6, :]  # Shape: (6, 720)
 
         # Asignar estos pesos tanto a las primeras 6 como a las siguientes 6 posiciones

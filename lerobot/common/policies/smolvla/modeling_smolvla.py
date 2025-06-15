@@ -96,6 +96,7 @@ def standardise_state_dict(
     • Re-keys `checkpoint ` so that every entry matches the *reference* key set.
     • If several variant keys collapse to the same canonical name we keep the
       first one and log the collision.
+    • Handles size mismatches in normalization buffers by duplicating values.
     • Returns the new dict + a list of entries that could not be matched.
     """
     out, collisions, unmatched = {}, {}, []
@@ -157,6 +158,9 @@ def load_smolvla(
         state_dict = rename_checkpoint_keys(state_dict, checkpoint_keys_mapping)
 
     state_dict, _ = standardise_state_dict(state_dict, set(model.state_dict().keys()))
+
+    # Adapt normalization buffers to handle size mismatches
+    state_dict = adapt_normalization_buffers(state_dict, model.state_dict())
 
     missing, unexpected = model.load_state_dict(state_dict)
 
@@ -918,3 +922,54 @@ class VLAFlowMatching(nn.Module):
         v_t = self.action_out_proj(suffix_out)
         logger.info(f"v_t shape: {v_t.shape}")
         return v_t
+
+
+def adapt_normalization_buffers(
+    checkpoint: dict[str, torch.Tensor], 
+    model_state_dict: dict[str, torch.Tensor],
+    *, verbose: bool = True
+) -> dict[str, torch.Tensor]:
+    """
+    Adapts normalization buffer sizes by duplicating values when checkpoint has smaller tensors.
+    Specifically handles cases where checkpoint has size [6] and model expects [12].
+    """
+    adapted_checkpoint = checkpoint.copy()
+    
+    # Keys that might need adaptation
+    buffer_keys = [
+        'normalize_inputs.buffer_observation_state.mean',
+        'normalize_inputs.buffer_observation_state.std', 
+        'normalize_targets.buffer_action.mean',
+        'normalize_targets.buffer_action.std',
+        'unnormalize_outputs.buffer_action.mean',
+        'unnormalize_outputs.buffer_action.std'
+    ]
+    
+    for key in buffer_keys:
+        if key in checkpoint and key in model_state_dict:
+            checkpoint_tensor = checkpoint[key]
+            model_tensor = model_state_dict[key]
+            
+            if checkpoint_tensor.shape != model_tensor.shape:
+                checkpoint_size = checkpoint_tensor.shape[0]
+                model_size = model_tensor.shape[0]
+                
+                if checkpoint_size == 6 and model_size == 12:
+                    # Duplicate the 6 values to create 12 values
+                    adapted_tensor = torch.cat([checkpoint_tensor, checkpoint_tensor], dim=0)
+                    adapted_checkpoint[key] = adapted_tensor
+                    
+                    if verbose:
+                        print(f"[adapt_normalization_buffers] Adapted '{key}' from shape {checkpoint_tensor.shape} to {adapted_tensor.shape}")
+                elif checkpoint_size == model_size // 2:
+                    # General case: duplicate to match expected size
+                    adapted_tensor = torch.cat([checkpoint_tensor, checkpoint_tensor], dim=0)
+                    adapted_checkpoint[key] = adapted_tensor
+                    
+                    if verbose:
+                        print(f"[adapt_normalization_buffers] Adapted '{key}' from shape {checkpoint_tensor.shape} to {adapted_tensor.shape}")
+                else:
+                    if verbose:
+                        print(f"[adapt_normalization_buffers] Cannot adapt '{key}': checkpoint shape {checkpoint_tensor.shape}, model shape {model_tensor.shape}")
+    
+    return adapted_checkpoint
