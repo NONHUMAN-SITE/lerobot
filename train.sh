@@ -1,4 +1,4 @@
-DATASET_NAME=test-bimanual
+DATASET_NAME=LEROBOTHACKATON
 
 cd lerobot && python lerobot/scripts/train.py \
   --policy.path=lerobot/smolvla_base \
