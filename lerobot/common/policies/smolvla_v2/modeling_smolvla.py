@@ -69,7 +69,7 @@ from lerobot.common.policies.normalize import (
     Unnormalize,
 )
 from lerobot.common.policies.pretrained import PreTrainedPolicy
-from lerobot.common.policies.smolvla.configuration_smolvla import SmolVLAConfig
+from lerobot.common.policies.smolvla_v2.configuration_smolvla import SmolVLA2Config
 from lerobot.common.policies.smolvla.smolvlm_with_expert import SmolVLMWithExpertModel
 from lerobot.common.policies.utils import (
     populate_queues,
@@ -375,15 +375,15 @@ def aloha_gripper_from_angular_inv(value):
     return normalize(value, min_val=0.4, max_val=1.5)
 
 
-class SmolVLAPolicy(PreTrainedPolicy):
+class SmolVLA2Policy(PreTrainedPolicy):
     """Wrapper class around VLAFlowMatching model to train and run inference within LeRobot."""
 
-    config_class = SmolVLAConfig
-    name = "smolvla"
+    config_class = SmolVLA2Config
+    name = "smolvla2"
 
     def __init__(
         self,
-        config: SmolVLAConfig,
+        config: SmolVLA2Config,
         dataset_stats: dict[str, dict[str, Tensor]] | None = None,
     ):
         """
@@ -457,7 +457,7 @@ class SmolVLAPolicy(PreTrainedPolicy):
     @classmethod
     def _load_as_safetensor(
         cls,
-        model: "SmolVLAPolicy",
+        model: "SmolVLA2Policy",
         model_file: str,
         map_location: str,
         strict: bool,
