@@ -58,6 +58,7 @@ from lerobot.common.robots import (  # noqa: F401
     make_robot_from_config,
     so100_follower,
     so101_follower,
+    bimanual_follower,
 )
 from lerobot.common.teleoperators import (  # noqa: F401
     Teleoperator,
@@ -81,7 +82,7 @@ from lerobot.common.utils.visualization_utils import _init_rerun
 from lerobot.configs import parser
 from lerobot.configs.policies import PreTrainedConfig
 
-from .common.teleoperators import koch_leader, so100_leader, so101_leader  # noqa: F401
+from .common.teleoperators import koch_leader, so100_leader, so101_leader, bimanual_leader  # noqa: F401
 from lerobot.xhuman.logger import logger
 
 
@@ -140,15 +141,15 @@ class RecordConfig:
     resume: bool = False
 
     def __post_init__(self):
-        if bool(self.teleop) == bool(self.policy):
-            raise ValueError("Choose either a policy or a teleoperator to control the robot")
-
         # HACK: We parse again the cli args here to get the pretrained path if there was one.
         policy_path = parser.get_path_arg("policy")
         if policy_path:
             cli_overrides = parser.get_cli_overrides("policy")
             self.policy = PreTrainedConfig.from_pretrained(policy_path, cli_overrides=cli_overrides)
             self.policy.pretrained_path = policy_path
+
+        if bool(self.teleop) == bool(self.policy):
+            raise ValueError("Choose either a policy or a teleoperator to control the robot")
 
     @classmethod
     def __get_path_fields__(cls) -> list[str]:
@@ -308,6 +309,7 @@ def record(cfg: RecordConfig) -> LeRobotDataset:
                 events=events,
                 fps=cfg.dataset.fps,
                 teleop=teleop,
+                policy=policy,
                 control_time_s=cfg.dataset.reset_time_s,
                 single_task=cfg.dataset.single_task,
                 display_data=cfg.display_data,
