@@ -1,10 +1,10 @@
 python -m lerobot.teleoperate \
     --robot.type=bimanual_follower \
     --robot.left_port=/dev/ttyACM3 \
-    --robot.right_port=/dev/ttyACM2 \
+    --robot.right_port=/dev/ttyACM1 \
     --robot.id=my_awesome_follower_arm \
     --teleop.type=bimanual_leader \
-    --teleop.left_port=/dev/ttyACM1 \
+    --teleop.left_port=/dev/ttyACM2 \
     --teleop.right_port=/dev/ttyACM0 \
     --teleop.id=my_awesome_leader_arm
 

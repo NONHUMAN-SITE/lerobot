@@ -469,6 +469,9 @@ def record(cfg: RecordConfig) -> LeRobotDataset:
     # Use continuous recording mode for indefinite episodes
     listener, events = init_continuous_keyboard_listener()
     
+    # Initialize episode counter - if resuming, start from existing episodes
+    initial_episodes = dataset.num_episodes if cfg.resume else 0
+    
     # Show initial welcome screen
     console = Console()
     console.clear()
@@ -478,18 +481,28 @@ def record(cfg: RecordConfig) -> LeRobotDataset:
     console.print(f"\n[bold cyan]📋 Task:[/bold cyan] [yellow]{cfg.dataset.single_task}[/yellow]")
     console.print(f"[bold cyan]💾 Dataset:[/bold cyan] [yellow]{cfg.dataset.repo_id}[/yellow]")
     console.print(f"[bold cyan]📹 FPS:[/bold cyan] [yellow]{cfg.dataset.fps}[/yellow]")
+    
+    # Show resume information if applicable
+    if cfg.resume and initial_episodes > 0:
+        console.print(f"[bold magenta]🔄 Resume Mode:[/bold magenta] [green]Continuing from {initial_episodes} existing episodes[/green]")
+    elif cfg.resume:
+        console.print(f"[bold magenta]🔄 Resume Mode:[/bold magenta] [yellow]No existing episodes found, starting fresh[/yellow]")
+    else:
+        console.print(f"[bold magenta]🆕 New Dataset:[/bold magenta] [green]Starting from episode 1[/green]")
     console.print("\n[bold magenta]🎮 Controls:[/bold magenta]")
     console.print("  [green]→[/green] Right Arrow: Finish episode and start next")
     console.print("  [green]←[/green] Left Arrow: Cancel and re-record episode") 
     console.print("  [green]↓[/green] Down Arrow: Continue current episode")
     console.print("  [red]ESC[/red]: Stop recording session")
     console.print("\n[bold yellow]🎬 Ready to start recording! Press any arrow key...[/bold yellow]")
-
-    recorded_episodes = 0
+    recorded_episodes = initial_episodes
     # Unlimited episodes if num_episodes is 0, otherwise use the configured limit
     unlimited_mode = cfg.dataset.num_episodes == 0
     
-    while unlimited_mode or recorded_episodes < cfg.dataset.num_episodes:
+    # Calculate target episodes for limited mode
+    target_episodes = cfg.dataset.num_episodes if not unlimited_mode else float('inf')
+    
+    while unlimited_mode or recorded_episodes < target_episodes:
         log_say(f"Recording episode {recorded_episodes + 1}", cfg.play_sounds)
         
         # Always use infinite time in indefinite mode
@@ -521,8 +534,9 @@ def record(cfg: RecordConfig) -> LeRobotDataset:
             dataset.save_episode()
             recorded_episodes += 1
             
-            # Show beautiful menu after each episode
-            show_episode_menu(recorded_episodes, cfg.dataset.single_task, cfg.dataset.repo_id)
+            # Show beautiful menu after each episode - display total episodes in dataset
+            total_episodes_in_dataset = dataset.num_episodes
+            show_episode_menu(total_episodes_in_dataset, cfg.dataset.single_task, cfg.dataset.repo_id)
             
             # Reset episode control flags for next episode
             events["finish_episode"] = False
@@ -534,8 +548,9 @@ def record(cfg: RecordConfig) -> LeRobotDataset:
         if events["stop_recording"]:
             break
 
-    # Show final summary
-    show_final_summary(recorded_episodes, cfg.dataset.single_task, cfg.dataset.repo_id)
+    # Show final summary - display total episodes in dataset
+    final_total_episodes = dataset.num_episodes
+    show_final_summary(final_total_episodes, cfg.dataset.single_task, cfg.dataset.repo_id)
     log_say("Stop recording", cfg.play_sounds, blocking=True)
 
     robot.disconnect()
