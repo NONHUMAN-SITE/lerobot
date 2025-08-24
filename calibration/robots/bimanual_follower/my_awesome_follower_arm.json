@@ -1,0 +1,87 @@
+{
+    "left_shoulder_pan": {
+        "id": 1,
+        "drive_mode": 0,
+        "homing_offset": 107,
+        "range_min": 735,
+        "range_max": 3442
+    },
+    "left_shoulder_lift": {
+        "id": 2,
+        "drive_mode": 0,
+        "homing_offset": 171,
+        "range_min": 808,
+        "range_max": 3145
+    },
+    "left_elbow_flex": {
+        "id": 3,
+        "drive_mode": 0,
+        "homing_offset": 1214,
+        "range_min": 971,
+        "range_max": 3223
+    },
+    "left_wrist_flex": {
+        "id": 4,
+        "drive_mode": 0,
+        "homing_offset": -1041,
+        "range_min": 466,
+        "range_max": 2959
+    },
+    "left_wrist_roll": {
+        "id": 5,
+        "drive_mode": 0,
+        "homing_offset": -1663,
+        "range_min": 0,
+        "range_max": 4095
+    },
+    "left_gripper": {
+        "id": 6,
+        "drive_mode": 0,
+        "homing_offset": -158,
+        "range_min": 2031,
+        "range_max": 3584
+    },
+    "right_shoulder_pan": {
+        "id": 7,
+        "drive_mode": 0,
+        "homing_offset": 98,
+        "range_min": 735,
+        "range_max": 3434
+    },
+    "right_shoulder_lift": {
+        "id": 8,
+        "drive_mode": 0,
+        "homing_offset": -30,
+        "range_min": 855,
+        "range_max": 3187
+    },
+    "right_elbow_flex": {
+        "id": 9,
+        "drive_mode": 0,
+        "homing_offset": 89,
+        "range_min": 762,
+        "range_max": 3055
+    },
+    "right_wrist_flex": {
+        "id": 10,
+        "drive_mode": 0,
+        "homing_offset": -111,
+        "range_min": 832,
+        "range_max": 2996
+    },
+    "right_wrist_roll": {
+        "id": 11,
+        "drive_mode": 0,
+        "homing_offset": -2021,
+        "range_min": 0,
+        "range_max": 4095
+    },
+    "right_gripper": {
+        "id": 12,
+        "drive_mode": 0,
+        "homing_offset": -135,
+        "range_min": 2021,
+        "range_max": 3520
+    }
+}
+

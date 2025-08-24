@@ -1,11 +1,19 @@
+ROBOT_TYPE=bimanual_follower
+TELEOP_TYPE=bimanual_leader
+
+ROBOT_LEFT_PORT=/dev/ttyACM0
+ROBOT_RIGHT_PORT=/dev/ttyACM1
+TELEOP_LEFT_PORT=/dev/ttyACM2
+TELEOP_RIGHT_PORT=/dev/ttyACM0
+
 python -m lerobot.teleoperate \
-    --robot.type=bimanual_follower \
-    --robot.left_port=/dev/ttyACM3 \
-    --robot.right_port=/dev/ttyACM1 \
+    --robot.type=${ROBOT_TYPE} \
+    --robot.left_port=${ROBOT_LEFT_PORT} \
+    --robot.right_port=${ROBOT_RIGHT_PORT} \
     --robot.id=my_awesome_follower_arm \
-    --teleop.type=bimanual_leader \
-    --teleop.left_port=/dev/ttyACM2 \
-    --teleop.right_port=/dev/ttyACM0 \
+    --teleop.type=${TELEOP_TYPE} \
+    --teleop.left_port=${TELEOP_LEFT_PORT} \
+    --teleop.right_port=${TELEOP_RIGHT_PORT} \
     --teleop.id=my_awesome_leader_arm
 
 #python -m lerobot.teleoperate \
