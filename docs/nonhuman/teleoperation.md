@@ -1,8 +1,3 @@
-Perfecto 🙌 aquí te dejo el **README.md** en markdown, paso a paso y bien estructurado:
-
----
-
-````markdown
 # Guía de Teleoperación del Sistema
 
 Este documento explica cómo configurar y utilizar el sistema de teleoperación.  
@@ -108,9 +103,3 @@ Cuando quieras terminarlo, usa la flecha derecha **solo una vez** (evita presion
 
 ✅ ¡Listo! Con esto ya puedes teleoperar y recolectar datos correctamente.
 
-```
-
----
-
-¿Quieres que te prepare también un **diagrama visual en markdown con puertos y dispositivos conectados** (tipo ASCII/tabla) para que quede más claro el orden de conexión?
-```

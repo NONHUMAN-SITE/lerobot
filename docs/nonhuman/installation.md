@@ -26,7 +26,7 @@ Una vez instalada Miniconda, crea un environment llamado `biman` con
 **Python 3.13**:
 
 ``` bash
-conda env create --name biman python=3.13
+conda create --name biman python=3.13
 ```
 
 Cuando se haya creado, actívalo con:
